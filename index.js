@@ -1,2 +1,1 @@
-console.log('hey')
-console.log('loggin some changes') 
+//another bug fix to be commited to the master branch
