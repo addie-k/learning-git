@@ -1,4 +1,2 @@
-
-//conflict 1
-
-//adding another commit
+//bug fix in new-branch
+//some commit in new-branch
