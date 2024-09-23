@@ -1,2 +1,2 @@
-//bug fix in new-branch
-//some commit in new-branch
+const pizzaShop = require("./pizzaShop")
+console.log((new pizzaShop).number)
