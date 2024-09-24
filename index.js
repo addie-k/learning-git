@@ -53,7 +53,7 @@ const fs = require("fs")
 
 const readableStream = fs.createReadStream('./demo.txt',{
     encoding:'utf-8',
-    // highWaterMark:1,
+    // highWaterMark:1, //dealing with data in chunks of 1 byte
 })
 const writeableStream = fs.createWriteStream('./demo2.txt')
 
@@ -61,10 +61,21 @@ readableStream.on('data',(chunk)=>{
     console.log(chunk)
     writeableStream.write(chunk)
 })
-readableStream.on('end',(x)=>{
-    console.log('finished reading data')
+readableStream.on('end',()=>{
+    console.log('reading end');
+    writeableStream.end()
 })
-readableStream.on('close', () => {
-    console.log('stream has been closed');
-});
-// readableStream.pipe(writeableStream)
+writeableStream.on('finish',()=>{
+    console.log('writing finished')
+})
+// readableStream.on('end',(x)=>{
+//     console.log('finished reading data')
+// })
+// readableStream.on('close', () => {
+//     console.log('stream has been closed');
+// });
+// // readableStream.pipe(writeableStream)
+// readableStream.pipe(writeableStream);
+// writeableStream.on('finish',()=>{
+//     console.log('process finished')
+// })
