@@ -57,4 +57,4 @@ writeable.on('error', (err) => {
 // })
 // writeableStream.on('finish',()=>{
 //     console.log('writing finished')
-// })
+// }) this shit is handled by pipes instead of doing it all manually
