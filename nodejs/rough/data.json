@@ -1,0 +1,13 @@
+ {
+    "name":"aditya",
+    "age":26,
+    "profile":"backend",
+    "address":{
+        "st":"Court Road",
+        "city":"Udhampur",
+        "state":"j&K"
+    },
+    "new":"abc",
+    "lol":"lol"
+   
+}

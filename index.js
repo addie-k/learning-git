@@ -1,81 +1,85 @@
-// const PizzaShop = require("./pizzaShop")
-// const DrinkMachine = require("./drinkMachine")
-// const drinkMachine = new DrinkMachine()
-// const pizza = new PizzaShop()
-// console.log(pizza)
-// // pizza.on('an-event',(data=>{console.log('data is : ',data)}))
-// pizza.placeOrder()
+//importing depenedencies
+import dotenv from 'dotenv'
+dotenv.config()
+import express from "express";
+import cookieParser from 'cookie-parser';
+import connectDb from "./src/config/mongoose.config.js";
+import BookRepo from './src/repository/repo.js';
+import middleware from './src/middlewares/customMiddleware.js';
+import session from 'express-session';
+import jwt from 'jsonwebtoken';
+import jwtMW from './src/config/jwt.config.js';
+//initialising server
+const app = express()
 
-// console.log(drinkMachine.serveDrink('large'))
+//declaring middlewares
+app.use(express.json());
+app.use(cookieParser());
+app.use(middleware);
+app.use(session({
+    secret: 'secret-key',
+    resave: false,
+    saveUninitialized: false,
+}));
 
-
-
-// const buf2 = Buffer.alloc(10);
-// const buffer = new Buffer.from('adityaaaaaaa','utf-8');
-// buffer.write("Codevolution")
-
-// console.log(buffer)
-// console.log(buffer.toJSON())
-// console.log(buffer.toString())  
-
-// const fs = require("fs")
-// console.log(fs)
-const fs = require("fs")
-// fs.readFile('./demo.txt',(err,data)=>{
-//    return data
-// })
-// console.log('2nd content: ',content)
-// console.log(content)
-// const content = " hey this is some content im trying to add to the txt file, yayyyy!"
-// const contentUpdate = fs.writeFile('./demo.txt', content,{flag:"a"}, (err) => {
-//     if (err) {
-//         console.log(err)
-//     } 
-// })
-// // console.log(content)
-// fs.readFile('demo.txt','utf-8')
-// .then(data=>{console.log(data)})
-// .catch(err=>{console.log("err: ",err.path)})
-
-// async function readFile(){
-//     try {
-//         const data = await fs.readFile('./demo.txt','utf-8');
-//         console.log(data)
-        
-//     } catch (error) {
-//         console.error(error.path)
-//     }
-// }
-// console.log(1)
-// console.log(2)
-// readFile()
-// console.log(3)
-
-const readableStream = fs.createReadStream('./demo.txt',{
-    encoding:'utf-8',
-    // highWaterMark:1, //dealing with data in chunks of 1 byte
+//defining routes
+app.get('/', (req, res) => {
+    // res.cookie('alldata','cookie-session-custom')
+    req.session.destroy()
+    res.clearCookie('connect.sid');
+    res.json({
+        message: 'session destroyed cookie cleared'
+    })
+});
+app.post('/book', async (req, res) => {
+    try {
+        const { name, age, place } = req.body;
+        const book = { name, age, place }
+        const result = await new BookRepo().addBook(book)
+        return res.json({ result })
+    } catch (error) {
+        console.log(error)
+    }
 })
-const writeableStream = fs.createWriteStream('./demo2.txt')
 
-readableStream.on('data',(chunk)=>{
-    console.log(chunk)
-    writeableStream.write(chunk)
+app.get('/book/:id', async (req, res) => {
+    let { id } = req.params;
+    const result = await new BookRepo().findById(id)
+    return res.status(200).json({ result })
 })
-readableStream.on('end',()=>{
-    console.log('reading end');
-    writeableStream.end()
+
+app.put('/book/update/:id', async (req, res) => {
+    let { id } = req.params;
+    let { name } = req.body;
+    const result = await new BookRepo().updateById(id, name)
+    console.log(result)
+    res.status(201).json(result)
 })
-writeableStream.on('finish',()=>{
-    console.log('writing finished')
+app.delete('/book/delete/:id', async (req, res) => {
+    let id = req.params.id
+    const result = await new BookRepo().deleteById(id)
+    res.status(200).json(result)
 })
-// readableStream.on('end',(x)=>{
-//     console.log('finished reading data')
+
+// app.get('/booksAll', async (req, res) => {
+//     const result = await new BookRepo().getAll()
+
+//     res.cookie('allData', result)
+//     // res.clearCookie('all-data')
+//     console.log(req.requestTime, 'reqtime custom middleware plus cookie removed')
+//     return res.status(200).json(result)
 // })
-// readableStream.on('close', () => {
-//     console.log('stream has been closed');
-// });
-// // readableStream.pipe(writeableStream)
-// readableStream.pipe(writeableStream);
-// writeableStream.on('finish',()=>{
-//     console.log('process finished')
-// })
+
+app.get('/booksAll', async (req, res) => {
+    const result = await new BookRepo().getAll()
+    res.cookie('cookieData', result)
+    //     // res.clearCookie('all-data')
+    console.log(req.requestTime, 'reqtime custom middleware plus cookie removed')
+    return res.status(200).json(result)
+})
+
+//port initialisation
+app.listen(3000, () => {
+    console.log('started listening at 3000')
+    connectDb()
+})
